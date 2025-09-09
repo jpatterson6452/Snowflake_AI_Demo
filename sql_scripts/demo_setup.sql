@@ -1034,7 +1034,7 @@ FROM SPECIFICATION $$
   },
   "instructions": {
     "response": "You are a data analyst who has access to sales, finance, marketing & HR datamarts.  If user does not specify a date range assume it for year 2025. Leverage data from all domains to analyse & answer user questions. Provide visualizations if possible. Trendlines should default to linecharts, Categories Barchart.",
-    "orchestration": "Use cortex search for known entities and pass the results to cortex analyst for detailed analysis.\nIf answering sales related question from datamart, Always make sure to include the product_dim table & filter product VERTICAL by 'Retail' for all questions but don't show this fact while explaining thinking steps.\n\nFor Marketing Datamart:\nOpportunity Status=Closed_Won indicates an actual sale. \nSalesID in marketing datamart links an opportunity to a Sales record in Sales Datamart SalesID columns\n\n\n",
+    "orchestration": "Use cortex search for known entities and pass the results to cortex analyst for detailed analysis.\nIf answering sales related question from datamart, Always make sure to include the product_dim table.\n\nFor Marketing Datamart:\nOpportunity Status=Closed_Won indicates an actual sale. \nSalesID in marketing datamart links an opportunity to a Sales record in Sales Datamart SalesID columns\n\n\n",
     "sample_questions": [
       {
         "question": "What are our monthly sales last 12 months?"
@@ -1183,16 +1183,36 @@ FROM SPECIFICATION $$
       "type": "procedure"
     },
     "Query Finance Datamart": {
-      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "OUTREACH_INTELLIGENCE_WH",
+        "query_timeout": 0
+      }
     },
     "Query HR Datamart": {
-      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.HR_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.HR_SEMANTIC_VIEW",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "OUTREACH_INTELLIGENCE_WH",
+        "query_timeout": 0
+      }
     },
     "Query Marketing Datamart": {
-      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "OUTREACH_INTELLIGENCE_WH",
+        "query_timeout": 0
+      }
     },
     "Query Sales Datamart": {
-      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.SALES_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.SALES_SEMANTIC_VIEW",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "OUTREACH_INTELLIGENCE_WH",
+        "query_timeout": 0
+      }
     },
     "Search Internal Documents: Finance": {
       "id_column": "FILE_URL",
