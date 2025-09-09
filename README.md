@@ -1,4 +1,4 @@
-# Snowflake Intelligence Demo
+# Outreach Revenue Workflow Demo (Snowflake Intelligence)
 
 This project demonstrates the comprehensive Snowflake Intelligence capabilities including:
 - **Cortex Analyst** (Text-to-SQL via semantic views)
@@ -18,9 +18,9 @@ This project demonstrates the comprehensive Snowflake Intelligence capabilities 
    ```
 
 2. **What the script creates**:
-   - `SF_Intelligence_Demo` role and permissions
-   - `Snow_Intelligence_demo_wh` warehouse
-   - `SF_AI_DEMO.DEMO_SCHEMA` database and schema
+   - `OUTREACH_Intelligence_Demo` role and permissions
+   - `OUTREACH_INTELLIGENCE_WH` warehouse
+   - `OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA` database and schema
    - Git repository integration
    - All dimension and fact tables with data
    - 4 semantic views for Cortex Analyst
@@ -45,8 +45,8 @@ This project demonstrates the comprehensive Snowflake Intelligence capabilities 
 - **Salesforce CRM Integration**: 3 Salesforce tables (Accounts, Opportunities, Contacts) with 62,000+ CRM records
 - **Automated Data Loading**: Git integration pulls data from GitHub repository
 - **Realistic Sample Data**: 210,000+ records across all business domains with complete customer journey
-- **Database**: `SF_AI_DEMO` with schema `DEMO_SCHEMA`
-- **Warehouse**: `Snow_Intelligence_demo_wh` (XSMALL with auto-suspend/resume)
+- **Database**: `OUTREACH_AI_DEMO` with schema `OUTREACH_DEMO_SCHEMA`
+- **Warehouse**: `OUTREACH_INTELLIGENCE_WH` (XSMALL with auto-suspend/resume)
 
 ### 2. Semantic Views (4 Business Domains)
 - **Finance Semantic View**: Financial transactions, accounts, departments, vendors
@@ -68,7 +68,7 @@ This project demonstrates the comprehensive Snowflake Intelligence capabilities 
 - **Visualization Support**: Generates charts and visualizations for data insights
 
 ### 5. GitHub Integration
-- **Repository**: `https://github.com/NickAkincilar/Snowflake_AI_DEMO.git`
+- **Repository**: `https://github.com/jpatterson6452/Snowflake_AI_Demo.git`
 - **Automated Sync**: Pulls demo data and unstructured documents
 - **File Processing**: Parses PDF documents using Cortex Parse for search indexing
 
@@ -78,18 +78,18 @@ The following diagram shows how all components work together in the Snowflake In
 
 ```mermaid
 graph TD
-    subgraph "GitHub Repository: NickAkincilar/Snowflake_AI_DEMO"
+    subgraph "GitHub Repository: jpatterson6452/Snowflake_AI_Demo"
         B[CSV Files<br/>20 demo_data files]
         C[Unstructured Docs<br/>PDF files]
     end
 
     subgraph "Git Integration Layer"
-        A[Git API Integration<br/>SF_AI_DEMO_REPO<br/>Automated file sync]
+        A[Git API Integration<br/>OUTREACH_AI_DEMO_REPO<br/>Automated file sync]
     end
 
-    subgraph "Snowflake Database: SF_AI_DEMO.DEMO_SCHEMA"
+    subgraph "Snowflake Database: OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA"
         subgraph "Raw Data Layer"
-            D[Internal Data Stage<br/>INTERNAL_DATA_STAGE]
+            D[Internal Data Stage<br/>OUTREACH_DATA_STAGE]
             E[Parsed Content Table<br/>parsed_content]
         end
         
@@ -121,10 +121,10 @@ graph TD
     end
 
     subgraph "Cortex Search Services"
-        L[Search_finance_docs<br/>Finance documents & policies]
-        M[Search_sales_docs<br/>Sales playbooks & stories]
-        N[Search_marketing_docs<br/>Campaign strategies & reports]
-        O[Search_hr_docs<br/>Employee handbook & guidelines]
+        L[Outreach_finance_docs<br/>Finance documents & policies]
+        M[Outreach_sales_docs<br/>Sales playbooks & stories]
+        N[Outreach_marketing_docs<br/>Campaign strategies & reports]
+        O[Outreach_hr_docs<br/>Employee handbook & guidelines]
     end
 
     subgraph "Web Scraping Layer"
@@ -132,7 +132,7 @@ graph TD
     end
 
     subgraph "AI Layer"
-        P[Snowflake Intelligence Agent<br/>COMPANY_CHATBOT_AGENT<br/>Multi-tool orchestration]
+        P[Snowflake Intelligence Agent<br/>Outreach_Revenue_Workflow_Agent<br/>Multi-tool orchestration]
     end
 
     subgraph "User Interface"

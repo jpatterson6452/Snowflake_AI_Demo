@@ -4,7 +4,7 @@
     -- ========================================================================
     -- Snowflake AI Demo - Complete Setup Script
     -- This script creates the database, schema, tables, and loads all data
-    -- Repository: https://github.com/NickAkincilar/Snowflake_AI_DEMO.git
+    -- Repository: https://github.com/jpatterson6452/Snowflake_AI_Demo.git
     -- ========================================================================
 
     
@@ -21,40 +21,40 @@
     GRANT USAGE ON SCHEMA snowflake_intelligence.agents TO ROLE PUBLIC;
 
 
-    create or replace role SF_Intelligence_Demo;
+    create or replace role OUTREACH_Intelligence_Demo;
 
 
     SET current_user_name = CURRENT_USER();
     
     -- Step 2: Use the variable to grant the role
-    GRANT ROLE SF_Intelligence_Demo TO USER IDENTIFIER($current_user_name);
-    GRANT CREATE DATABASE ON ACCOUNT TO ROLE SF_Intelligence_Demo;
+    GRANT ROLE OUTREACH_Intelligence_Demo TO USER IDENTIFIER($current_user_name);
+    GRANT CREATE DATABASE ON ACCOUNT TO ROLE OUTREACH_Intelligence_Demo;
     
     -- Create a dedicated warehouse for the demo with auto-suspend/resume
-    CREATE OR REPLACE WAREHOUSE Snow_Intelligence_demo_wh 
+    CREATE OR REPLACE WAREHOUSE OUTREACH_INTELLIGENCE_WH 
         WITH WAREHOUSE_SIZE = 'XSMALL'
         AUTO_SUSPEND = 300
         AUTO_RESUME = TRUE;
 
 
     -- Grant usage on warehouse to admin role
-    GRANT USAGE ON WAREHOUSE SNOW_INTELLIGENCE_DEMO_WH TO ROLE SF_Intelligence_Demo;
+    GRANT USAGE ON WAREHOUSE OUTREACH_INTELLIGENCE_WH TO ROLE OUTREACH_Intelligence_Demo;
 
 
    -- Alter current user's default role and warehouse to the ones used here
-    ALTER USER IDENTIFIER($current_user_name) SET DEFAULT_ROLE = SF_Intelligence_Demo;
-    ALTER USER IDENTIFIER($current_user_name) SET DEFAULT_WAREHOUSE = Snow_Intelligence_demo_wh;
+    ALTER USER IDENTIFIER($current_user_name) SET DEFAULT_ROLE = OUTREACH_Intelligence_Demo;
+    ALTER USER IDENTIFIER($current_user_name) SET DEFAULT_WAREHOUSE = OUTREACH_INTELLIGENCE_WH;
     
 
-    -- Switch to SF_Intelligence_Demo role to create demo objects
-    use role SF_Intelligence_Demo;
+    -- Switch to OUTREACH_Intelligence_Demo role to create demo objects
+    use role OUTREACH_Intelligence_Demo;
    
     -- Create database and schema
-    CREATE OR REPLACE DATABASE SF_AI_DEMO;
-    USE DATABASE SF_AI_DEMO;
+    CREATE OR REPLACE DATABASE OUTREACH_AI_DEMO;
+    USE DATABASE OUTREACH_AI_DEMO;
 
-    CREATE SCHEMA IF NOT EXISTS DEMO_SCHEMA;
-    USE SCHEMA DEMO_SCHEMA;
+    CREATE SCHEMA IF NOT EXISTS OUTREACH_DEMO_SCHEMA;
+    USE SCHEMA OUTREACH_DEMO_SCHEMA;
 
     -- Create file format for CSV files
     CREATE OR REPLACE FILE FORMAT CSV_FORMAT
@@ -76,27 +76,27 @@ use role accountadmin;
     -- Create API Integration for GitHub (public repository access)
     CREATE OR REPLACE API INTEGRATION git_api_integration
         API_PROVIDER = git_https_api
-        API_ALLOWED_PREFIXES = ('https://github.com/NickAkincilar/')
+        API_ALLOWED_PREFIXES = ('https://github.com/jpatterson6452/')
         ENABLED = TRUE;
 
 
-GRANT USAGE ON INTEGRATION GIT_API_INTEGRATION TO ROLE SF_Intelligence_Demo;
+GRANT USAGE ON INTEGRATION GIT_API_INTEGRATION TO ROLE OUTREACH_Intelligence_Demo;
 
 
-use role SF_Intelligence_Demo;
+use role OUTREACH_Intelligence_Demo;
     -- Create Git repository integration for the public demo repository
-    CREATE OR REPLACE GIT REPOSITORY SF_AI_DEMO_REPO
+    CREATE OR REPLACE GIT REPOSITORY OUTREACH_AI_DEMO_REPO
         API_INTEGRATION = git_api_integration
-        ORIGIN = 'https://github.com/NickAkincilar/Snowflake_AI_DEMO.git';
+        ORIGIN = 'https://github.com/jpatterson6452/Snowflake_AI_Demo.git';
 
     -- Create internal stage for copied data files
-    CREATE OR REPLACE STAGE INTERNAL_DATA_STAGE
+    CREATE OR REPLACE STAGE OUTREACH_DATA_STAGE
         FILE_FORMAT = CSV_FORMAT
         COMMENT = 'Internal stage for copied demo data files'
         DIRECTORY = ( ENABLE = TRUE)
         ENCRYPTION = (   TYPE = 'SNOWFLAKE_SSE');
 
-    ALTER GIT REPOSITORY SF_AI_DEMO_REPO FETCH;
+    ALTER GIT REPOSITORY OUTREACH_AI_DEMO_REPO FETCH;
 
     -- ========================================================================
     -- COPY DATA FROM GIT TO INTERNAL STAGE
@@ -104,18 +104,18 @@ use role SF_Intelligence_Demo;
 
     -- Copy all CSV files from Git repository demo_data folder to internal stage
     COPY FILES
-    INTO @INTERNAL_DATA_STAGE/demo_data/
-    FROM @SF_AI_DEMO_REPO/branches/main/demo_data/;
+    INTO @OUTREACH_DATA_STAGE/demo_data/
+    FROM @OUTREACH_AI_DEMO_REPO/branches/main/demo_data/;
 
 
     COPY FILES
-    INTO @INTERNAL_DATA_STAGE/unstructured_docs/
-    FROM @SF_AI_DEMO_REPO/branches/main/unstructured_docs/;
+    INTO @OUTREACH_DATA_STAGE/unstructured_docs/
+    FROM @OUTREACH_AI_DEMO_REPO/branches/main/unstructured_docs/;
 
     -- Verify files were copied
-    LS @INTERNAL_DATA_STAGE;
+    LS @OUTREACH_DATA_STAGE;
 
-    ALTER STAGE INTERNAL_DATA_STAGE refresh;
+    ALTER STAGE OUTREACH_DATA_STAGE refresh;
 
   
 
@@ -335,79 +335,79 @@ use role SF_Intelligence_Demo;
 
     -- Load Product Category Dimension
     COPY INTO product_category_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/product_category_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/product_category_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Product Dimension
     COPY INTO product_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/product_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/product_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Vendor Dimension
     COPY INTO vendor_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/vendor_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/vendor_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Customer Dimension
     COPY INTO customer_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/customer_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/customer_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Account Dimension
     COPY INTO account_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/account_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/account_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Department Dimension
     COPY INTO department_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/department_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/department_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Region Dimension
     COPY INTO region_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/region_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/region_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Sales Rep Dimension
     COPY INTO sales_rep_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/sales_rep_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/sales_rep_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Campaign Dimension
     COPY INTO campaign_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/campaign_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/campaign_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Channel Dimension
     COPY INTO channel_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/channel_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/channel_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Employee Dimension
     COPY INTO employee_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/employee_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/employee_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Job Dimension
     COPY INTO job_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/job_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/job_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Location Dimension
     COPY INTO location_dim
-    FROM @INTERNAL_DATA_STAGE/demo_data/location_dim.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/location_dim.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
@@ -417,25 +417,25 @@ use role SF_Intelligence_Demo;
 
     -- Load Sales Fact
     COPY INTO sales_fact
-    FROM @INTERNAL_DATA_STAGE/demo_data/sales_fact.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/sales_fact.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Finance Transactions
     COPY INTO finance_transactions
-    FROM @INTERNAL_DATA_STAGE/demo_data/finance_transactions.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/finance_transactions.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Marketing Campaign Fact
     COPY INTO marketing_campaign_fact
-    FROM @INTERNAL_DATA_STAGE/demo_data/marketing_campaign_fact.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/marketing_campaign_fact.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load HR Employee Fact
     COPY INTO hr_employee_fact
-    FROM @INTERNAL_DATA_STAGE/demo_data/hr_employee_fact.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/hr_employee_fact.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
@@ -445,19 +445,19 @@ use role SF_Intelligence_Demo;
 
     -- Load Salesforce Accounts
     COPY INTO sf_accounts
-    FROM @INTERNAL_DATA_STAGE/demo_data/sf_accounts.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/sf_accounts.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Salesforce Opportunities
     COPY INTO sf_opportunities
-    FROM @INTERNAL_DATA_STAGE/demo_data/sf_opportunities.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/sf_opportunities.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
     -- Load Salesforce Contacts
     COPY INTO sf_contacts
-    FROM @INTERNAL_DATA_STAGE/demo_data/sf_contacts.csv
+    FROM @OUTREACH_DATA_STAGE/demo_data/sf_contacts.csv
     FILE_FORMAT = CSV_FORMAT
     ON_ERROR = 'CONTINUE';
 
@@ -467,7 +467,7 @@ use role SF_Intelligence_Demo;
 
     -- Verify Git integration and file copy
     SHOW GIT REPOSITORIES;
-   -- SELECT 'Internal Stage Files' as stage_type, COUNT(*) as file_count FROM (LS @INTERNAL_DATA_STAGE);
+   -- SELECT 'Internal Stage Files' as stage_type, COUNT(*) as file_count FROM (LS @OUTREACH_DATA_STAGE);
 
     -- Verify data loads
     SELECT 'DIMENSION TABLES' as category, '' as table_name, NULL as row_count
@@ -521,7 +521,7 @@ use role SF_Intelligence_Demo;
     SELECT '', 'sf_contacts', COUNT(*) FROM sf_contacts;
 
     -- Show all tables
-    SHOW TABLES IN SCHEMA DEMO_SCHEMA; 
+    SHOW TABLES IN SCHEMA OUTREACH_DEMO_SCHEMA; 
 
 
 
@@ -531,15 +531,15 @@ use role SF_Intelligence_Demo;
   -- Creates business unit-specific semantic views for natural language queries
   -- Based on: https://docs.snowflake.com/en/user-guide/views-semantic/sql
   -- ========================================================================
-  USE ROLE SF_Intelligence_Demo;
-  USE DATABASE SF_AI_DEMO;
-  USE SCHEMA DEMO_SCHEMA;
+  USE ROLE OUTREACH_Intelligence_Demo;
+  USE DATABASE OUTREACH_AI_DEMO;
+  USE SCHEMA OUTREACH_DEMO_SCHEMA;
 
   -- ========================================================================
   -- FINANCE SEMANTIC VIEW
   -- ========================================================================
 
- create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW
+ create or replace semantic view OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW
     tables (
         TRANSACTIONS as FINANCE_TRANSACTIONS primary key (TRANSACTION_ID) with synonyms=('finance transactions','financial data') comment='All financial transactions across departments',
         ACCOUNTS as ACCOUNT_DIM primary key (ACCOUNT_KEY) with synonyms=('chart of accounts','account types') comment='Account dimension for financial categorization',
@@ -583,7 +583,7 @@ use role SF_Intelligence_Demo;
   -- SALES SEMANTIC VIEW
   -- ========================================================================
 
-create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.SALES_SEMANTIC_VIEW
+create or replace semantic view OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.SALES_SEMANTIC_VIEW
 	tables (
 		CUSTOMERS as CUSTOMER_DIM primary key (CUSTOMER_KEY) with synonyms=('clients','customers','accounts') comment='Customer information for sales analysis',
 		PRODUCTS as PRODUCT_DIM primary key (PRODUCT_KEY) with synonyms=('products','items','SKUs') comment='Product catalog for sales analysis',
@@ -646,7 +646,7 @@ create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.SALES_SEMANTIC_VIEW
 -- ========================================================================
   -- MARKETING SEMANTIC VIEW
   -- ========================================================================
-create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW
+create or replace semantic view OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW
 	tables (
 		ACCOUNTS as SF_ACCOUNTS primary key (ACCOUNT_ID) with synonyms=('customers','accounts','clients') comment='Customer account information for revenue analysis',
 		CAMPAIGNS as MARKETING_CAMPAIGN_FACT primary key (CAMPAIGN_FACT_ID) with synonyms=('marketing campaigns','campaign data') comment='Marketing campaign performance data',
@@ -745,7 +745,7 @@ create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW
   -- ========================================================================
   -- HR SEMANTIC VIEW
   -- ========================================================================
-create or replace semantic view SF_AI_DEMO.DEMO_SCHEMA.HR_SEMANTIC_VIEW
+create or replace semantic view OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.HR_SEMANTIC_VIEW
 	tables (
 		DEPARTMENTS as DEPARTMENT_DIM primary key (DEPARTMENT_KEY) with synonyms=('departments','business units') comment='Department dimension for organizational analysis',
 		EMPLOYEES as EMPLOYEE_DIM primary key (EMPLOYEE_KEY) with synonyms=('employees','staff','workforce') comment='Employee dimension with personal information',
@@ -819,30 +819,30 @@ create or replace table parsed_content as
 select 
    
     relative_path, 
-    BUILD_STAGE_FILE_URL('@SF_AI_DEMO.DEMO_SCHEMA.INTERNAL_DATA_STAGE', relative_path) as file_url,
-     TO_File(BUILD_STAGE_FILE_URL('@SF_AI_DEMO.DEMO_SCHEMA.INTERNAL_DATA_STAGE', relative_path) ) file_object,
+    BUILD_STAGE_FILE_URL('@OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_DATA_STAGE', relative_path) as file_url,
+     TO_File(BUILD_STAGE_FILE_URL('@OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_DATA_STAGE', relative_path) ) file_object,
         SNOWFLAKE.CORTEX.PARSE_DOCUMENT(
-                                    @SF_AI_DEMO.DEMO_SCHEMA.INTERNAL_DATA_STAGE,
+                                    @OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_DATA_STAGE,
                                     relative_path,
                                     {'mode':'LAYOUT'}
                                     ):content::string as Content
 
     
-    from directory(@SF_AI_DEMO.DEMO_SCHEMA.INTERNAL_DATA_STAGE) 
+    from directory(@OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_DATA_STAGE) 
 where relative_path ilike 'unstructured_docs/%.pdf' ;
 
 --select *, GET_PATH(PARSE_JSON(content), 'content')::string as extracted_content from parsed_content;
 
 
     -- Switch to admin role for remaining operations
-    USE ROLE SF_Intelligence_Demo;
+    USE ROLE OUTREACH_Intelligence_Demo;
 
     -- Create search service for finance documents
     -- This enables semantic search over finance-related content
-    CREATE OR REPLACE CORTEX SEARCH SERVICE Search_finance_docs
+    CREATE OR REPLACE CORTEX SEARCH SERVICE Outreach_finance_docs
         ON content
         ATTRIBUTES relative_path, file_url, title
-        WAREHOUSE = SNOW_INTELLIGENCE_DEMO_WH
+        WAREHOUSE = OUTREACH_INTELLIGENCE_WH
         TARGET_LAG = '30 day'
         EMBEDDING_MODEL = 'snowflake-arctic-embed-l-v2.0'
         AS (
@@ -857,10 +857,10 @@ where relative_path ilike 'unstructured_docs/%.pdf' ;
     
     -- Create search service for HR documents
     -- This enables semantic search over HR-related content
-    CREATE OR REPLACE CORTEX SEARCH SERVICE Search_hr_docs
+    CREATE OR REPLACE CORTEX SEARCH SERVICE Outreach_hr_docs
         ON content
         ATTRIBUTES relative_path, file_url, title
-        WAREHOUSE = SNOW_INTELLIGENCE_DEMO_WH
+        WAREHOUSE = OUTREACH_INTELLIGENCE_WH
         TARGET_LAG = '30 day'
         EMBEDDING_MODEL = 'snowflake-arctic-embed-l-v2.0'
         AS (
@@ -875,10 +875,10 @@ where relative_path ilike 'unstructured_docs/%.pdf' ;
 
     -- Create search service for marketing documents
     -- This enables semantic search over marketing-related content
-    CREATE OR REPLACE CORTEX SEARCH SERVICE Search_marketing_docs
+    CREATE OR REPLACE CORTEX SEARCH SERVICE Outreach_marketing_docs
         ON content
         ATTRIBUTES relative_path, file_url, title
-        WAREHOUSE = SNOW_INTELLIGENCE_DEMO_WH
+        WAREHOUSE = OUTREACH_INTELLIGENCE_WH
         TARGET_LAG = '30 day'
         EMBEDDING_MODEL = 'snowflake-arctic-embed-l-v2.0'
         AS (
@@ -893,10 +893,10 @@ where relative_path ilike 'unstructured_docs/%.pdf' ;
 
     -- Create search service for sales documents
     -- This enables semantic search over sales-related content
-    CREATE OR REPLACE CORTEX SEARCH SERVICE Search_sales_docs
+    CREATE OR REPLACE CORTEX SEARCH SERVICE Outreach_sales_docs
         ON content
         ATTRIBUTES relative_path, file_url, title
-        WAREHOUSE = SNOW_INTELLIGENCE_DEMO_WH
+        WAREHOUSE = OUTREACH_INTELLIGENCE_WH
         TARGET_LAG = '30 day'
         EMBEDDING_MODEL = 'snowflake-arctic-embed-l-v2.0'
         AS (
@@ -910,11 +910,11 @@ where relative_path ilike 'unstructured_docs/%.pdf' ;
         );
 
 
-use role sf_intelligence_demo;
+use role OUTREACH_Intelligence_Demo;
 
 
   -- NETWORK rule is part of db schema
-CREATE OR REPLACE NETWORK RULE Snowflake_intelligence_WebAccessRule
+CREATE OR REPLACE NETWORK RULE Outreach_WebAccessRule
   MODE = EGRESS
   TYPE = HOST_PORT
   VALUE_LIST = ('0.0.0.0:80', '0.0.0.0:443');
@@ -922,30 +922,30 @@ CREATE OR REPLACE NETWORK RULE Snowflake_intelligence_WebAccessRule
 
 use role accountadmin;
 
-GRANT ALL PRIVILEGES ON DATABASE SF_AI_DEMO TO ROLE ACCOUNTADMIN;
-GRANT ALL PRIVILEGES ON SCHEMA SF_AI_DEMO.DEMO_SCHEMA TO ROLE ACCOUNTADMIN;
-GRANT USAGE ON NETWORK RULE snowflake_intelligence_webaccessrule TO ROLE accountadmin;
+GRANT ALL PRIVILEGES ON DATABASE OUTREACH_AI_DEMO TO ROLE ACCOUNTADMIN;
+GRANT ALL PRIVILEGES ON SCHEMA OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA TO ROLE ACCOUNTADMIN;
+GRANT USAGE ON NETWORK RULE Outreach_webaccessrule TO ROLE accountadmin;
 
-USE SCHEMA SF_AI_DEMO.DEMO_SCHEMA;
+USE SCHEMA OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA;
 
-CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION Snowflake_intelligence_ExternalAccess_Integration
-ALLOWED_NETWORK_RULES = (Snowflake_intelligence_WebAccessRule)
+CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION Outreach_ExternalAccess_Integration
+ALLOWED_NETWORK_RULES = (Outreach_WebAccessRule)
 ENABLED = true;
 
 CREATE NOTIFICATION INTEGRATION ai_email_int
   TYPE=EMAIL
   ENABLED=TRUE;
 
-GRANT USAGE ON DATABASE snowflake_intelligence TO ROLE SF_Intelligence_Demo;
-GRANT USAGE ON SCHEMA snowflake_intelligence.agents TO ROLE SF_Intelligence_Demo;
-GRANT CREATE AGENT ON SCHEMA snowflake_intelligence.agents TO ROLE SF_Intelligence_Demo;
+GRANT USAGE ON DATABASE snowflake_intelligence TO ROLE OUTREACH_Intelligence_Demo;
+GRANT USAGE ON SCHEMA snowflake_intelligence.agents TO ROLE OUTREACH_Intelligence_Demo;
+GRANT CREATE AGENT ON SCHEMA snowflake_intelligence.agents TO ROLE OUTREACH_Intelligence_Demo;
 
-GRANT USAGE ON INTEGRATION Snowflake_intelligence_ExternalAccess_Integration TO ROLE SF_Intelligence_Demo;
+GRANT USAGE ON INTEGRATION Outreach_ExternalAccess_Integration TO ROLE OUTREACH_Intelligence_Demo;
 
-GRANT USAGE ON INTEGRATION AI_EMAIL_INT TO ROLE SF_INTELLIGENCE_DEMO;
+GRANT USAGE ON INTEGRATION AI_EMAIL_INT TO ROLE OUTREACH_Intelligence_Demo;
 
 
-use role SF_Intelligence_Demo;
+use role OUTREACH_Intelligence_Demo;
 -- CREATES A SNOWFLAKE INTELLIGENCE AGENT WITH MULTIPLE TOOLS
 
 -- Create stored procedure to generate presigned URLs for files in internal stages
@@ -963,7 +963,7 @@ DECLARE
     presigned_url STRING;
     sql_stmt STRING;
     expiration_seconds INTEGER;
-    stage_name STRING DEFAULT '@SF_AI_DEMO.DEMO_SCHEMA.INTERNAL_DATA_STAGE';
+    stage_name STRING DEFAULT '@OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_DATA_STAGE';
 BEGIN
     expiration_seconds := EXPIRATION_MINS * 60;
 
@@ -1007,7 +1007,7 @@ RETURNS STRING
 LANGUAGE PYTHON
 RUNTIME_VERSION = 3.11
 HANDLER = 'get_page'
-EXTERNAL_ACCESS_INTEGRATIONS = (Snowflake_intelligence_ExternalAccess_Integration)
+EXTERNAL_ACCESS_INTEGRATIONS = (Outreach_ExternalAccess_Integration)
 PACKAGES = ('requests', 'beautifulsoup4')
 --SECRETS = ('cred' = oauth_token )
 AS
@@ -1024,9 +1024,9 @@ def get_page(weburl):
 $$;
 
 
-CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.Company_Chatbot_Agent_Retail
-WITH PROFILE='{ "display_name": "1-Company Chatbot Agent - Retail" }'
-    COMMENT=$$ This is an agent that can answer questions about company specific Sales, Marketing, HR & Finance questions. $$
+CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.Outreach_Revenue_Workflow_Agent
+WITH PROFILE='{ "display_name": "1-Outreach Revenue Workflow Agent" }'
+    COMMENT=$$ This is an agent tailored for Outreach that can answer questions about Sales Execution, Marketing, HR & Finance. $$
 FROM SPECIFICATION $$
 {
   "models": {
@@ -1176,55 +1176,55 @@ FROM SPECIFICATION $$
       "execution_environment": {
         "query_timeout": 0,
         "type": "warehouse",
-        "warehouse": "SNOW_INTELLIGENCE_DEMO_WH"
+        "warehouse": "OUTREACH_INTELLIGENCE_WH"
       },
-      "identifier": "SF_AI_DEMO.DEMO_SCHEMA.GET_FILE_PRESIGNED_URL_SP",
+      "identifier": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.GET_FILE_PRESIGNED_URL_SP",
       "name": "GET_FILE_PRESIGNED_URL_SP(VARCHAR, DEFAULT NUMBER)",
       "type": "procedure"
     },
     "Query Finance Datamart": {
-      "semantic_view": "SF_AI_DEMO.DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.FINANCE_SEMANTIC_VIEW"
     },
     "Query HR Datamart": {
-      "semantic_view": "SF_AI_DEMO.DEMO_SCHEMA.HR_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.HR_SEMANTIC_VIEW"
     },
     "Query Marketing Datamart": {
-      "semantic_view": "SF_AI_DEMO.DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.MARKETING_SEMANTIC_VIEW"
     },
     "Query Sales Datamart": {
-      "semantic_view": "SF_AI_DEMO.DEMO_SCHEMA.SALES_SEMANTIC_VIEW"
+      "semantic_view": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.SALES_SEMANTIC_VIEW"
     },
     "Search Internal Documents: Finance": {
       "id_column": "FILE_URL",
       "max_results": 5,
-      "name": "SF_AI_DEMO.DEMO_SCHEMA.SEARCH_FINANCE_DOCS",
+      "name": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_FINANCE_DOCS",
       "title_column": "TITLE"
     },
     "Search Internal Documents: HR": {
       "id_column": "FILE_URL",
       "max_results": 5,
-      "name": "SF_AI_DEMO.DEMO_SCHEMA.SEARCH_HR_DOCS",
+      "name": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_HR_DOCS",
       "title_column": "TITLE"
     },
     "Search Internal Documents: Marketing": {
       "id_column": "RELATIVE_PATH",
       "max_results": 5,
-      "name": "SF_AI_DEMO.DEMO_SCHEMA.SEARCH_MARKETING_DOCS",
+      "name": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_MARKETING_DOCS",
       "title_column": "TITLE"
     },
     "Search Internal Documents: Sales": {
       "id_column": "FILE_URL",
       "max_results": 5,
-      "name": "SF_AI_DEMO.DEMO_SCHEMA.SEARCH_SALES_DOCS",
+      "name": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.OUTREACH_SALES_DOCS",
       "title_column": "TITLE"
     },
     "Send_Emails": {
       "execution_environment": {
         "query_timeout": 0,
         "type": "warehouse",
-        "warehouse": "SNOW_INTELLIGENCE_DEMO_WH"
+        "warehouse": "OUTREACH_INTELLIGENCE_WH"
       },
-      "identifier": "SF_AI_DEMO.DEMO_SCHEMA.SEND_MAIL",
+      "identifier": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.SEND_MAIL",
       "name": "SEND_MAIL(VARCHAR, VARCHAR, VARCHAR)",
       "type": "procedure"
     },
@@ -1232,9 +1232,9 @@ FROM SPECIFICATION $$
       "execution_environment": {
         "query_timeout": 0,
         "type": "warehouse",
-        "warehouse": "SNOW_INTELLIGENCE_DEMO_WH"
+        "warehouse": "OUTREACH_INTELLIGENCE_WH"
       },
-      "identifier": "SF_AI_DEMO.DEMO_SCHEMA.WEB_SCRAPE",
+      "identifier": "OUTREACH_AI_DEMO.OUTREACH_DEMO_SCHEMA.WEB_SCRAPE",
       "name": "WEB_SCRAPE(VARCHAR)",
       "type": "function"
     }
